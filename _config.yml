@@ -1,0 +1,36 @@
+# Site Settings
+title: "Your Name | Developer"
+description: "A portfolio and blog about [Your Specialty]"
+url: "https://yourusername.github.io" # Replace with your URL
+baseurl: "" # Leave empty if your repo is yourusername.github.io
+
+# Theme Configuration
+remote_theme: "mmistakes/minimal-mistakes"
+minimal_mistakes_skin: "dark" # Options: air, aqua, contrast, dark, dirt, mint, sunrise
+
+# Plugins
+plugins:
+  - jekyll-remote-theme
+  - jekyll-include-cache
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Author Information
+author:
+  name: "Your Name"
+  avatar: "/assets/images/avatar.jpg"
+  bio: "Full Stack Developer. I build things with [Tech Stack]."
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com"
+
+# Defaults for Posts
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "single"
+      author_profile: true
+      read_time: true
