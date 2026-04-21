@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DNS Resolver</title>
 
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-
     <!-- Remix Icon -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
 
@@ -269,7 +267,7 @@
                 const indicator = document.getElementById("indicator");
 
                 try {
-                    const res = await fetch("http://dns.check", {
+                    const res = await fetch("http://check.dns.local", {
                         method: "GET",
                         cache: "no-store"
                     });
