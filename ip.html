@@ -210,24 +210,25 @@ async function fetchIP() {
     const res = await fetch("https://dns.google/resolve?name=w1ndows9.twilightparadox.com");
     const data = await res.json();
     const record = data.Answer?.find(r => r.type === 1);
+    const status = document.getElementById("status");
 
     if (!record) throw new Error("no A record");
 
     currentIP = record.data;
     ip.textContent = currentIP;
     ip.classList.remove("loading");
-    status.textContent = "resolved";
+    status.innerText = "resolved";
   } catch (e) {
     ip.textContent = "error";
     ip.classList.remove("loading");
-    status.textContent = e.message;
+    status.innerText = e.message;
   }
 }
 
 function copyIP() {
   if (!currentIP) return;
   navigator.clipboard.writeText(currentIP);
-  status.textContent = "copied ✓";
+  status.innerText = "copied ✓";
   setTimeout(() => status.textContent = "resolved", 1500);
 }
 
