@@ -262,40 +262,35 @@
             let isConnected = false;
 
             async function fetchStatus() {
-                const status = document.getElementById("status");
-                const ip = document.getElementById("ip");
-                const indicator = document.getElementById("indicator");
+    const status = document.getElementById("status");
+    const ip = document.getElementById("ip");
+    const indicator = document.getElementById("indicator");
 
-                try {
-                    const res = await fetch("http://check.dns.local", {
-                        method: "GET",
-                        cache: "no-store"
-                    });
+    try {
+        // mode: "no-cors" allows the request to go through even if CORS headers are missing
+        await fetch("http://check.dns.local", {
+            method: "GET",
+            mode: "no-cors", 
+            cache: "no-store"
+        });
 
-                    if (res.ok) {
-                        isConnected = true;
-                        ip.textContent = "CONNECTED";
-                        ip.classList.remove("loading");
+        // If the line above doesn't throw, the network request reached the destination
+        ip.textContent = "CONNECTED";
+        ip.classList.remove("loading");
+        indicator.classList.add("online");
+        indicator.classList.remove("offline");
+        status.textContent = "connection established ✓";
 
-                        indicator.classList.add("online");
-                        indicator.classList.remove("offline");
+    } catch (err) {
+        // If the domain is unreachable or the network is down, it triggers the catch block
+        ip.textContent = "NOT CONNECTED";
+        ip.classList.remove("loading");
+        indicator.classList.add("offline");
+        indicator.classList.remove("online");
+        status.textContent = "unable to reach dns";
+    }
+}
 
-                        status.textContent = "connection established ✓";
-                    } else {
-                        throw new Error();
-                    }
-
-                } catch {
-                    isConnected = false;
-                    ip.textContent = "NOT CONNECTED";
-                    ip.classList.remove("loading");
-
-                    indicator.classList.add("offline");
-                    indicator.classList.remove("online");
-
-                    status.textContent = "unable to reach dns";
-                }
-            }
 
             /* Parallax unchanged */
             document.addEventListener("mousemove", e => {
