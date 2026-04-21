@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Resolver</title>
+
+    <!-- Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            overflow: hidden;
+            background: #020617;
+            color: white;
+        }
+
+        /* ===== BACKGROUND ===== */
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .orb {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.6;
+            mix-blend-mode: screen;
+            transition: transform 0.2s linear;
+        }
+
+        .orb.blue {
+            background: radial-gradient(circle, #38bdf8, transparent 70%);
+            animation: drift1 40s ease-in-out infinite alternate;
+        }
+
+        .orb.purple {
+            background: radial-gradient(circle, #8b5cf6, transparent 70%);
+            animation: drift2 50s ease-in-out infinite alternate;
+        }
+
+        .orb.pink {
+            background: radial-gradient(circle, #ec4899, transparent 70%);
+            animation: drift3 60s ease-in-out infinite alternate;
+        }
+
+        @keyframes drift1 {
+            0% {
+                transform: translate(-10%, -10%) scale(1);
+            }
+
+            50% {
+                transform: translate(30%, 20%) scale(1.1);
+            }
+
+            100% {
+                transform: translate(60%, -20%) scale(1);
+            }
+        }
+
+        @keyframes drift2 {
+            0% {
+                transform: translate(70%, 80%) scale(1);
+            }
+
+            50% {
+                transform: translate(40%, 30%) scale(1.15);
+            }
+
+            100% {
+                transform: translate(10%, 60%) scale(1);
+            }
+        }
+
+        @keyframes drift3 {
+            0% {
+                transform: translate(20%, 70%) scale(1);
+            }
+
+            50% {
+                transform: translate(60%, 40%) scale(1.1);
+            }
+
+            100% {
+                transform: translate(30%, 10%) scale(1);
+            }
+        }
+
+        /* Grid */
+        .grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(40px);
+            }
+        }
+
+        /* Noise overlay */
+        .noise {
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        /* ===== CARD ===== */
+
+        .container {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            width: 360px;
+            padding: 30px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 60px rgba(56, 189, 248, 0.15);
+        }
+
+        .title {
+            font-size: 13px;
+            opacity: 0.6;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .ip-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+
+            background: #facc15;
+            box-shadow: 0 0 10px #facc15;
+            transition: 0.3s;
+        }
+
+        #ip {
+            font-size: 18px;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #38bdf8, #6366f1);
+            border: none;
+            border-radius: 10px;
+            padding: 8px;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+        }
+
+        .status {
+            margin-top: 12px;
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .status-indicator.online {
+            background: #22c55e;
+            box-shadow: 0 0 15px #22c55e;
+        }
+
+        .status-indicator.offline {
+            background: #ef4444;
+            box-shadow: 0 0 15px #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg">
+        <div class="orb blue"></div>
+        <div class="orb purple"></div>
+        <div class="orb pink"></div>
+        <div class="grid"></div>
+        <div class="noise"></div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="title">Network Status</div>
+
+            <div class="ip-box">
+                <div class="status-indicator" id="indicator"></div>
+                <span id="ip" class="loading">checking...</span>
+            </div>
+
+            <div id="status" class="status">attempting connection...</div>
+        </div>
+
+        <script>
+            let isConnected = false;
+
+            async function fetchStatus() {
+                const status = document.getElementById("status");
+                const ip = document.getElementById("ip");
+                const indicator = document.getElementById("indicator");
+
+                try {
+                    const res = await fetch("http://dnscheck.dns.local", {
+                        method: "GET",
+                        cache: "no-store"
+                    });
+
+                    if (res.ok) {
+                        isConnected = true;
+                        ip.textContent = "CONNECTED";
+                        ip.classList.remove("loading");
+
+                        indicator.classList.add("online");
+                        indicator.classList.remove("offline");
+
+                        status.textContent = "connection established ✓";
+                    } else {
+                        throw new Error();
+                    }
+
+                } catch {
+                    isConnected = false;
+                    ip.textContent = "NOT CONNECTED";
+                    ip.classList.remove("loading");
+
+                    indicator.classList.add("offline");
+                    indicator.classList.remove("online");
+
+                    status.textContent = "unable to reach dns";
+                }
+            }
+
+            /* Parallax unchanged */
+            document.addEventListener("mousemove", e => {
+                const x = (e.clientX / window.innerWidth - 0.5) * 20;
+                const y = (e.clientY / window.innerHeight - 0.5) * 20;
+
+                document.querySelectorAll(".orb").forEach((orb, i) => {
+                    const depth = (i + 1) * 10;
+                    orb.style.transform += ` translate(${x/depth}px, ${y/depth}px)`;
+                });
+            });
+
+            fetchStatus();
+        </script>
+
+</body>
+
+</html>
