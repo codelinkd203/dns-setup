@@ -207,7 +207,7 @@ let currentIP = "";
 
 async function fetchIP() {
   try {
-    const res = await fetch("https://dns.google/resolve?name=w1ndows9.twilightparadox.com");
+    const res = await fetch("https://dns.google/resolve?name=osaka-os.ignorelist.com");
     const data = await res.json();
     const record = data.Answer?.find(r => r.type === 1);
     const status = document.getElementById("status");
